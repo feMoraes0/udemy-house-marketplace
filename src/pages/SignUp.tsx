@@ -2,20 +2,43 @@ import { useState } from "react";
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import { Link } from "react-router-dom";
 import OAuth from "../components/OAuth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile, User } from "firebase/auth";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const onChange = (event: any) => {
     setFormData((previous) => ({
       ...previous,
       [event.target.id]: event.target.value,
     }));
+  };
+
+  const onSubmit = async (event: any) => {
+    event.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      await updateProfile(auth.currentUser as User, { displayName: formData.name });
+      const user = userCredential.user;
+      const formDataCopy = { ...formData } as any;
+      delete formDataCopy.password;
+      formDataCopy.timestamp = serverTimestamp();
+      await setDoc(doc(db, "users", user.uid), formDataCopy);
+      navigate("/");
+    } catch (error) {
+      toast.error("Something went wrong with the registration");
+    }
   };
 
   return (
@@ -29,7 +52,7 @@ const SignUp = () => {
             alt="" />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form  action="">
+          <form  onSubmit={onSubmit}>
             <input className="w-full px-4 py-2 text-xl text-gray-700 bg-white rounded border-gray-300 transition ease-in-out mb-6" type="text" id="name" value={formData.name} onChange={onChange} placeholder="Full name" />
             <input className="w-full px-4 py-2 text-xl text-gray-700 bg-white rounded border-gray-300 transition ease-in-out mb-6" type="text" id="email" value={formData.email} onChange={onChange} placeholder="Email address" />
             <div className="relative mb-6">
