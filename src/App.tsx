@@ -10,6 +10,7 @@ import PrivateRoute from "./components/PrivateRoute"
 import './firebase';
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import CreateListing from "./pages/CreateListing"
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           </Route>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/offers" element={<Offers />} />
+          <Route path="/create-listing" element={<CreateListing />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
         </Routes>
